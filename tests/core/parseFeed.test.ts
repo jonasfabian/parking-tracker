@@ -19,12 +19,43 @@ describe('status and free spaces', () => {
   it('reads "open /  162" as open with 162 free spaces', () => {
     expect(parseStatus('open /  162')).toEqual({ status: 'open', freeSpaces: 162 });
   });
-  it.todo('handles any number of spaces around the slash and the number');
-  it.todo('reads "open /    0" as open but full');
-  it.todo('reads "closed /    0" as closed');
-  it.todo('returns an unknown state when the number is missing or not a number');
-  it.todo('returns an unknown state for a status word it does not know');
-  it.todo('accepts the display limit of 999 free spaces');
+
+  it('handles any number of spaces around the slash and the number', () => {
+    expect(parseStatus('open/162')).toEqual({ status: 'open', freeSpaces: 162 });
+    expect(parseStatus('  open   /    162  ')).toEqual({ status: 'open', freeSpaces: 162 });
+  });
+
+  it('reads "open /    0" as open but full', () => {
+    expect(parseStatus('open /    0')).toEqual({ status: 'open', freeSpaces: 0 });
+  });
+
+  it('reads "closed /    0" as closed', () => {
+    expect(parseStatus('closed /    0')).toEqual({ status: 'closed' });
+  });
+
+  it('accepts the display limit of 999 free spaces', () => {
+    expect(parseStatus('open /  999')).toEqual({ status: 'open', freeSpaces: 999 });
+  });
+
+  it.each([
+    ['open / ', 'the number is missing'],
+    ['open', 'the slash is missing'],
+    ['open / abc', 'the number is text'],
+    ['open / -5', 'the number is negative'],
+    ['open / 1.5', 'the number is a decimal'],
+    ['open / 1e3', 'the number uses exponent notation'],
+  ])('returns unknown for "%s" because %s', (description) => {
+    expect(parseStatus(description)).toEqual({ status: 'unknown' });
+  });
+
+  it('returns unknown for a status word it does not know', () => {
+    expect(parseStatus('kaputt /    5')).toEqual({ status: 'unknown' });
+  });
+
+  it('returns unknown for an empty or missing description', () => {
+    expect(parseStatus('')).toEqual({ status: 'unknown' });
+    expect(parseStatus(undefined)).toEqual({ status: 'unknown' });
+  });
 });
 
 describe('time and freshness', () => {
