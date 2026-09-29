@@ -16,3 +16,16 @@ type CarParkStatus =
   { status: 'open'; freeSpaces: number } | { status: 'closed' } | { status: 'unknown' };
 
 export type CarPark = CarParkBase & CarParkStatus;
+
+export type ProblemReason =
+  'missing_title' | 'missing_link' | 'missing_id' | 'missing_date' | 'invalid_date';
+
+export type Problem = {
+  reason: ProblemReason;
+  entry: RawEntry;
+};
+
+export type ParseResult = {
+  carParks: CarPark[];
+  problems: Problem[];
+};
