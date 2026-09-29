@@ -12,7 +12,7 @@ type CarParkBase = {
   updatedAt: number; // milliseconds since 1970, UTC
 };
 
-type CarParkStatus =
+export type CarParkStatus =
   { status: 'open'; freeSpaces: number } | { status: 'closed' } | { status: 'unknown' };
 
 export type CarPark = CarParkBase & CarParkStatus;

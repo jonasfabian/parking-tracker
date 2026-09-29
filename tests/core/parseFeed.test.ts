@@ -1,4 +1,5 @@
-import { describe, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { parseStatus } from '../../src/core/parseStatus';
 
 // core: raw entries in, car parks and a list of problems out.
 // write the raw entries directly as objects in each testt. no xml, no network, no clock.
@@ -15,7 +16,9 @@ describe('name and address', () => {
 });
 
 describe('status and free spaces', () => {
-  it.todo('reads "open /  162" as open with 162 free spaces');
+  it('reads "open /  162" as open with 162 free spaces', () => {
+    expect(parseStatus('open /  162')).toEqual({ status: 'open', freeSpaces: 162 });
+  });
   it.todo('handles any number of spaces around the slash and the number');
   it.todo('reads "open /    0" as open but full');
   it.todo('reads "closed /    0" as closed');
