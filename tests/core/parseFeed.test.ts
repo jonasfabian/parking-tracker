@@ -1,12 +1,29 @@
 import { describe, expect, it } from 'vitest';
 import { parseStatus } from '../../src/core/parseStatus';
+import { parseId } from '../../src/core/parseId';
 
 // core: raw entries in, car parks and a list of problems out.
 // write the raw entries directly as objects in each testt. no xml, no network, no clock.
 
 describe('id', () => {
-  it.todo('extracts the id from the pid parameter in the link');
-  it.todo('skips an entry without link and reports it as a problem');
+  it('extracts the id from the pid parameter in the link', () => {
+    expect(parseId('https://www.pls-zh.ch/parkhaus/accu.jsp?pid=accu')).toBe('accu');
+    expect(parseId('https://www.pls-zh.ch/parkhaus/center_11.jsp?pid=center_11')).toBe('center_11');
+    expect(parseId('https://www.pls-zh.ch/parkhaus/accu.jsp?pid=accu&lang=de')).toBe('accu');
+  });
+
+  it.each([
+    { link: undefined, reason: 'the link is missing' },
+    { link: 'https://www.pls-zh.ch/parkhaus/accu.jsp', reason: 'the pid parameter is missing' },
+    { link: 'https://www.pls-zh.ch/parkhaus/accu.jsp?pid=', reason: 'the pid is empty' },
+    { link: 'not a url', reason: 'the link is not a valid URL' },
+    {
+      link: 'https://www.pls-zh.ch/parkhaus/accu.jsp?xpid=accu',
+      reason: 'only a similar parameter exists',
+    },
+  ])('returns undefined for $link because $reason', ({ link }) => {
+    expect(parseId(link)).toBeUndefined();
+  });
 });
 
 describe('name and address', () => {
