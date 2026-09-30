@@ -12,7 +12,8 @@
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "noImplicitReturns": true
   },
   "include": ["src", "tests", "vitest.config.ts"]
 }

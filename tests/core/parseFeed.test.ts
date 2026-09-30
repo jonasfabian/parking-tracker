@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseStatus } from '../../src/core/parseStatus';
 import { parseId } from '../../src/core/parseId';
+import { parseTitle } from '../../src/core/parseTitle';
 
 // core: raw entries in, car parks and a list of problems out.
 // write the raw entries directly as objects in each testt. no xml, no network, no clock.
@@ -27,9 +28,36 @@ describe('id', () => {
 });
 
 describe('name and address', () => {
-  it.todo('splits "Parkhaus Accu / Otto-Schütz-Weg" into name and address');
-  it.todo('keeps the full title as name when there is no address');
-  it.todo('keeps umlauts and hyphens in the address');
+  it('splits the title into name and address and drops the prefix "Parkhaus"', () => {
+    expect(parseTitle('Parkhaus Accu / Otto-Schütz-Weg')).toEqual({
+      name: 'Accu',
+      address: 'Otto-Schütz-Weg',
+    });
+  });
+  it('keeps the name when there is no address', () => {
+    expect(parseTitle('Parkhaus Ohne Adresse')).toEqual({
+      name: 'Ohne Adresse',
+      address: undefined,
+    });
+  });
+  it('keeps a name without prefix unchanged', () => {
+    expect(parseTitle('Hauptbahnhof / Sihlquai 41')).toEqual({
+      name: 'Hauptbahnhof',
+      address: 'Sihlquai 41',
+    });
+  });
+  it('splits only at the first separator', () => {
+    expect(parseTitle('Parkhaus X / Strasse 1 / Eingang B')).toEqual({
+      name: 'X',
+      address: 'Strasse 1 / Eingang B',
+    });
+  });
+  it.each([{ title: undefined }, { title: '' }, { title: '   ' }])(
+    'returns undefined for "$title"',
+    ({ title }) => {
+      expect(parseTitle(title)).toBeUndefined();
+    },
+  );
 });
 
 describe('status and free spaces', () => {
