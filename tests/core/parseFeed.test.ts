@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { parseStatus } from '../../src/core/parseStatus';
 import { parseId } from '../../src/core/parseId';
 import { parseTitle } from '../../src/core/parseTitle';
+import { parseDate } from '../../src/core/parseDate';
 
 // core: raw entries in, car parks and a list of problems out.
 // write the raw entries directly as objects in each testt. no xml, no network, no clock.
@@ -104,7 +105,25 @@ describe('status and free spaces', () => {
 });
 
 describe('time and freshness', () => {
-  it.todo('uses dc:date as the timestamp and parses it as UTC');
+  it('parses an ISO timestamp with Z as UTC', () => {
+    expect(parseDate('2026-09-29T11:30:21Z')).toBe(Date.UTC(2026, 8, 29, 11, 30, 21));
+  });
+
+  it('respects an explicit offset', () => {
+    expect(parseDate('2026-09-29T13:30:21+02:00')).toBe(Date.UTC(2026, 8, 29, 11, 30, 21));
+  });
+
+  it.each([
+    { date: undefined, reason: 'it is missing' },
+    { date: '', reason: 'it is empty' },
+    { date: 'yesterday', reason: 'it is not a date' },
+    { date: '2026-09-29T11:30:21', reason: 'the time zone is missing' },
+    { date: 'Tue, 29 Sep 2026 11:30:21 GMT', reason: 'it is not ISO format' },
+    { date: '2026-13-45T11:30:21Z', reason: 'month and day do not exist' },
+  ])('returns undefined for "$date" because $reason', ({ date }) => {
+    expect(parseDate(date)).toBeUndefined();
+  });
+
   it.todo('skips an entry without timestamp and reports it as a problem');
   it.todo('marks an entry as stale when it is older than the threshold');
   it.todo('treats an entry exactly at the threshold consistently');
